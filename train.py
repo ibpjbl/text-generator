@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import re
 import random
+import pickle
 from numpy.random import choice
 
 class Generator:
@@ -101,10 +102,10 @@ class Generator:
 #---------------------------------------LOWER IS GENERATE-------------------------------------------
 
 
-    def generate(self, length, seed="rand"): #генерация текста длиной length слов с первым словом seed (по умолчанию выбирается случайное слово)
+    def generate(self, model, length, seed="rand"): #генерация текста длиной length слов с первым словом seed (по умолчанию выбирается случайное слово)
         random.seed()
         seed = seed.lower() #приведение первого слова к "нормальному" виду
-        if (seed == "rand"): 
+        if (seed == "rand") or not (self.train_dict.get(seed)): 
             seed = self.unique_words[random.randint(0, self.uwcount - 1)] #выбор случайного слова, если seed не задан/не существует
         s = seed.title() #строка начинается с seed (с заглавной буквы)
         lstwrd = seed
@@ -157,6 +158,19 @@ class Generator:
 #---------------------------------------LOWER IS MAIN MODULE-------------------------------------------
 #******************************************************************************************************
 
-
-esskeetit = Generator("./samples/tentacion.txt", "gucci")
-esskeetit.generate(100, "why")
+s = input('Put "t" to train model or "g" to generate text (default "t"): ')
+if s[0] == 'g':
+    model = input('Enter path to the model: ')
+    length = int(input('Enter length of the text: '))
+    seed = input('Enter the first word: ')
+    inpo = open(model, "rb")
+    esk = pickle.load(inpo)
+    print('***********************')
+    esk.generate(model, length, seed)
+else:
+    inpdir = input('Enter input directory: ')
+    model = input('Enter path to save model: ')
+    esskeetit = Generator(inpdir, model)
+    oup = open(model + 'generator.pkl', "wb")
+    pickle.dump(esskeetit, oup, 2)
+    print("Done!")
